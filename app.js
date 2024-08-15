@@ -1,13 +1,11 @@
 import express from "express";
 import session from "express-session"
-import passport from "passport"
-import {Strategy as LocalStrategy} from "passport-local";
-import Database from "better-sqlite3";
 import fs from "fs";
+import db from "./database.js";
+import passport from "./passportConfig.js";
 
 const app = express();
 app.set("view engine", "ejs");
-const db = new Database("./sql.db");
 const schema = fs.readFileSync('./schema.sql', 'utf8');
 db.exec(schema);
 
@@ -20,7 +18,7 @@ app.get("/sign-up", (req, res) => res.render("sign-up-form"));
 
 const insertUserStmt = db.prepare('INSERT INTO users (username, password) VALUES (?, ?)');
 
-app.post('/sign-up', async (req, res, next) => {
+app.post('/sign-up', (req, res, next) => {
   try {
     // Run the prepared statement with user input
     insertUserStmt.run(req.body.username, req.body.password);
