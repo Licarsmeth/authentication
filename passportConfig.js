@@ -24,5 +24,21 @@ passport.use(
   })
 );
 
+//Stores the user id in the session.
+passport.serializeUser((user, done) => {
+    done(null, user.id);
+  });
+
+//Retrieves the user from the database based on the id and makes it available on req.user.
+  passport.deserializeUser((id, done) => {
+    try {
+      const user = db.prepare('SELECT * FROM users WHERE id = ?').get(id)
+  
+      done(null, user);
+    } catch(err) {
+      done(err);
+    }
+  });
+  
 
 export default passport;
