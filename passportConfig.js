@@ -1,12 +1,13 @@
 import passport from "passport"
 import {Strategy as LocalStrategy} from "passport-local";
 import db from "./database.js";
+import bcrypt from "bcryptjs";
 
 const getUserByUsernameStmt = db.prepare('SELECT * FROM users WHERE username = ?');
 
 passport.use(
     //telling Passport to use the LocalStrategy for authentication.
-  new LocalStrategy((username, password, done) => {
+  new LocalStrategy(async (username, password, done) => {
     try {
       // Run the prepared statement to get the user
       const user = getUserByUsernameStmt.get(username);
@@ -14,8 +15,14 @@ passport.use(
       if (!user) {
         return done(null, false, { message: "Incorrect username" });
       }
-      if (user.password !== password) {
-        return done(null, false, { message: "Incorrect password" });
+      //without bcrypt
+      // if (user.password !== password) {
+      //   return done(null, false, { message: "Incorrect password" });
+      // }
+      //using bcrypt (async await because bcrypt functions are asynchronous)
+      const match = await bcrypt.compare(password, user.password);
+      if(!match){
+        return done(null, false, {message: "Incorrect password"});
       }
       return done(null, user);
     } catch (err) {
