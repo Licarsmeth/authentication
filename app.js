@@ -3,6 +3,7 @@ import session from "express-session"
 import fs from "fs";
 import db from "./database.js";
 import passport from "./passportConfig.js";
+import bcrypt from "bcryptjs";
 
 const app = express();
 app.set("view engine", "ejs");
@@ -25,15 +26,37 @@ app.get("/log-out", (req, res, next) => {
   });
 
 const insertUserStmt = db.prepare('INSERT INTO users (username, password) VALUES (?, ?)');
+// app.post('/sign-up', (req, res, next) => {
+//   try {
+//     // Run the prepared statement with user input
+//     insertUserStmt.run(req.body.username, req.body.password);
+//     res.redirect('/');
+//   } catch (err) {
+//     return next(err);
+//   }
+// });
+
+
+//using bcrypt
 app.post('/sign-up', (req, res, next) => {
-  try {
-    // Run the prepared statement with user input
-    insertUserStmt.run(req.body.username, req.body.password);
-    res.redirect('/');
-  } catch (err) {
+  try{
+    bcrypt.hash(req.body.password, 10, async (err, hashedPassword) => {
+      if (err){
+        return next(err);
+      }
+
+      try{
+        insertUserStmt.run(req.body.username, hashedPassword);
+        res.redirect('/');
+      } catch(err) {
+        return next(err);
+      }
+    })
+  }
+  catch (err){
     return next(err);
   }
-});
+})
 
 app.post(
     "/log-in",
