@@ -26,16 +26,6 @@ app.get("/log-out", (req, res, next) => {
   });
 
 const insertUserStmt = db.prepare('INSERT INTO users (username, password) VALUES (?, ?)');
-// app.post('/sign-up', (req, res, next) => {
-//   try {
-//     // Run the prepared statement with user input
-//     insertUserStmt.run(req.body.username, req.body.password);
-//     res.redirect('/');
-//   } catch (err) {
-//     return next(err);
-//   }
-// });
-
 
 //using bcrypt
 app.post('/sign-up', (req, res, next) => {
