@@ -15,11 +15,7 @@ passport.use(
       if (!user) {
         return done(null, false, { message: "Incorrect username" });
       }
-      //without bcrypt
-      // if (user.password !== password) {
-      //   return done(null, false, { message: "Incorrect password" });
-      // }
-      //using bcrypt (async await because bcrypt functions are asynchronous)
+      
       const match = await bcrypt.compare(password, user.password);
       if(!match){
         return done(null, false, {message: "Incorrect password"});
@@ -40,7 +36,6 @@ passport.serializeUser((user, done) => {
   passport.deserializeUser((id, done) => {
     try {
       const user = db.prepare('SELECT * FROM users WHERE id = ?').get(id)
-  
       done(null, user);
     } catch(err) {
       done(err);
